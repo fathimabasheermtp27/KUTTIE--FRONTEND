@@ -3,6 +3,7 @@ import 'screens/task_cards_page.dart';
 import 'screens/leaderboard_page.dart';
 import 'screens/task_submission_page.dart';
 import 'widgets/magical_button.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   runApp(KuttieApp());
@@ -58,6 +59,18 @@ class MagicalHomePage extends StatelessWidget {
                     Color(0xFFFFE2EC), // pink
                   ],
                 ),
+              ),
+            ),
+          ),
+          // Playful cartoon SVG
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 80.0),
+              child: SvgPicture.asset(
+                'assets/images/cartoon_hero.svg',
+                height: 220,
+                semanticsLabel: 'Cartoon Hero',
               ),
             ),
           ),
