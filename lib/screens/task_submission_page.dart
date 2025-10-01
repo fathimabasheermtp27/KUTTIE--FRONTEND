@@ -50,34 +50,49 @@ class _TaskSubmissionPageState extends State<TaskSubmissionPage> {
   Future<void> _submitTask() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Here you would send _imageFile, _videoFile, and _submissionText to backend
-      await Future.delayed(const Duration(seconds: 1)); // Simulate network
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-          backgroundColor: Colors.purple[50],
-          title: Column(
-            children: [
-              Icon(Icons.celebration, color: Colors.purple, size: 48),
-              const SizedBox(height: 12),
-              const Text('Submitted Successfully!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.deepPurple)),
-            ],
-          ),
-          content: const Text('Your submission has been received. Great job!', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
-              },
-              child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
+      try {
+        final url = Uri.parse('http://127.0.0.1:8002/api/submissions/');
+        final response = await HttpClient().postUrl(url)
+          ..headers.contentType = ContentType.json
+          ..write('{"submission": "${_submissionText ?? ''}"}');
+        final httpResponse = await response.close();
+        if (httpResponse.statusCode == 200 || httpResponse.statusCode == 201) {
+          if (!mounted) return;
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              backgroundColor: Colors.purple[50],
+              title: Column(
+                children: [
+                  Icon(Icons.celebration, color: Colors.purple, size: 48),
+                  const SizedBox(height: 12),
+                  const Text('Submitted Successfully!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.deepPurple)),
+                ],
+              ),
+              content: const Text('Your submission has been received. Great job!', textAlign: TextAlign.center, style: TextStyle(fontSize: 16)),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.purple)),
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Submission failed: ${httpResponse.statusCode}')),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
     }
   }
 
